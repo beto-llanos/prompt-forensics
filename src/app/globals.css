@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+:root {
+  --void: #050608;
+  --slab: #0d1014;
+  --carbon: #14181d;
+  --hairline: #1f2731;
+  --hairline-bright: #2c3845;
+  --bone: #e2e8ee;
+  --ash: #6a7682;
+  --signal: #5be9d3;
+  --glow: #7ad1ff;
+  --crimson: #ff3358;
+  --ember: #ff8a3d;
+  --amber: #ffc24a;
+  --lime: #6cf2c4;
+}
+
+@theme inline {
+  --color-void: var(--void);
+  --color-slab: var(--slab);
+  --color-carbon: var(--carbon);
+  --color-hairline: var(--hairline);
+  --color-hairline-bright: var(--hairline-bright);
+  --color-bone: var(--bone);
+  --color-ash: var(--ash);
+  --color-signal: var(--signal);
+  --color-glow: var(--glow);
+  --color-crimson: var(--crimson);
+  --color-ember: var(--ember);
+  --color-amber: var(--amber);
+  --color-lime: var(--lime);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+html,
+body {
+  background: var(--void);
+  color: var(--bone);
+}
+
+body {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--void);
+}
+
+/* Scanline overlay — forensic console feel */
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.scanlines::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(91, 233, 211, 0.012) 3px,
+    rgba(91, 233, 211, 0.012) 4px
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+.scanlines::after {
+  content: "";
+  position: fixed;
+  inset: 0 0 0 0;
+  height: 200px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(91, 233, 211, 0.025) 50%,
+    transparent
+  );
+  pointer-events: none;
+  z-index: 101;
+  animation: scan 14s linear infinite;
+}
+
+/* Severity highlights inside prompt body */
+.hl-critical {
+  background: rgba(255, 51, 88, 0.18);
+  border-bottom: 1px solid rgba(255, 51, 88, 0.7);
+  box-shadow: 0 0 0 1px rgba(255, 51, 88, 0.25) inset;
+  color: #ffd5dd;
+}
+
+.hl-high {
+  background: rgba(255, 138, 61, 0.16);
+  border-bottom: 1px solid rgba(255, 138, 61, 0.6);
+  box-shadow: 0 0 0 1px rgba(255, 138, 61, 0.2) inset;
+  color: #ffdcc1;
+}
+
+.hl-medium {
+  background: rgba(255, 194, 74, 0.14);
+  border-bottom: 1px solid rgba(255, 194, 74, 0.5);
+  box-shadow: 0 0 0 1px rgba(255, 194, 74, 0.18) inset;
+  color: #ffeac3;
+}
+
+.hl-low,
+.hl-info {
+  background: rgba(108, 242, 196, 0.12);
+  border-bottom: 1px solid rgba(108, 242, 196, 0.4);
+  color: #c8f3e3;
+}
+
+/* Pulse for active findings */
+@keyframes findingPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(91, 233, 211, 0.0) inset;
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(91, 233, 211, 0.6) inset;
+  }
+}
+
+.pulse-signal {
+  animation: findingPulse 2.4s ease-in-out infinite;
+}
+
+/* Subtle blink for the recording dot */
+@keyframes blink {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0.25; }
+}
+
+.blink {
+  animation: blink 1.4s steps(2, end) infinite;
+}
+
+/* Grid backdrop */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(91, 233, 211, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91, 233, 211, 0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-position: -1px -1px;
+}
+
+/* Custom scrollbar inside code blocks */
+.code-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.code-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.code-scroll::-webkit-scrollbar-thumb {
+  background: rgba(91, 233, 211, 0.18);
+  border-radius: 3px;
+}
+.code-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(91, 233, 211, 0.32);
+}
