@@ -18,7 +18,7 @@ const RULES: Rule[] = [
     title: "Instruction override phrase",
     patterns: [
       /\bignore\s+(?:all|the|any|your)?\s*(?:previous|prior|earlier|above)\s+(?:instructions?|prompts?|rules?)/gi,
-      /\bdisregard\s+(?:everything|all|the\s+(?:previous|prior|above))/gi,
+      /\bdisregard\s+(?:\w+\s+){0,4}(?:instructions?|prompts?|rules?)\b/gi,
       /\bforget\s+(?:everything|all|your)\s+(?:instructions?|prompts?|training)/gi,
       /\bnew\s+(?:instructions?|prompts?|rules?)\s*:/gi,
     ],
