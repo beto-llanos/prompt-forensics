@@ -41,16 +41,16 @@ export function ScanReport({ scenario }: { scenario: Scenario }) {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_1.05fr]">
-      <div className="space-y-6">
-        <div className="border border-hairline bg-slab/40">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+      <div className="min-w-0 space-y-6">
+        <div className="overflow-hidden border border-hairline bg-slab/40">
           <div className="flex items-center justify-between border-b border-hairline px-5 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-ash">
             <span>prompt under review</span>
             <span className="text-signal">
               {initial.prompt.length} chars
             </span>
           </div>
-          <div className="max-h-[640px] overflow-auto p-5 code-scroll">
+          <div className="code-scroll max-h-[640px] overflow-auto p-5">
             <HighlightedPrompt
               prompt={initial.prompt}
               findings={initial.findings}
@@ -89,7 +89,7 @@ export function ScanReport({ scenario }: { scenario: Scenario }) {
         </motion.div>
       </div>
 
-      <div className="space-y-6">
+      <div className="min-w-0 space-y-6">
         <RiskMeter score={initial.score} />
         <div className="space-y-4">
           <div className="flex items-baseline justify-between border-b border-hairline pb-3">
