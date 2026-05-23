@@ -1,10 +1,7 @@
+import Anthropic from "@anthropic-ai/sdk";
 import type { Finding } from "./types";
 
 export class ClaudeError extends Error {}
-
-// Talks to Claude through OpenRouter (OpenAI-compatible gateway).
-const MODEL = process.env.OPENROUTER_MODEL ?? "anthropic/claude-sonnet-4.6";
-const BASE_URL = process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
 
 const SYSTEM_PROMPT = `You are a prompt-security analyst writing a one-paragraph forensic note for a system owner.
 
@@ -22,10 +19,10 @@ interface SummarizeArgs {
 }
 
 export async function summarize({ prompt, findings }: SummarizeArgs): Promise<string> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    throw new ClaudeError("OPENROUTER_API_KEY not set");
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new ClaudeError("ANTHROPIC_API_KEY not set");
   }
+  const client = new Anthropic();
   const findingsBlock = findings
     .map(
       (f, i) =>
@@ -33,42 +30,28 @@ export async function summarize({ prompt, findings }: SummarizeArgs): Promise<st
     )
     .join("\n");
 
-  const response = await fetch(`${BASE_URL}/chat/completions`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "X-Title": "prompt-forensics",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 600,
-      temperature: 0.4,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: `PROMPT UNDER REVIEW (do not echo back):\n<<<\n${prompt}\n>>>\n\nDETECTED FINDINGS:\n${findingsBlock}\n\nWrite the forensic note.`,
-        },
-      ],
-    }),
+  const response = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 600,
+    system: [
+      {
+        type: "text",
+        text: SYSTEM_PROMPT,
+        cache_control: { type: "ephemeral" },
+      },
+    ],
+    thinking: { type: "disabled" },
+    messages: [
+      {
+        role: "user",
+        content: `PROMPT UNDER REVIEW (do not echo back):\n<<<\n${prompt}\n>>>\n\nDETECTED FINDINGS:\n${findingsBlock}\n\nWrite the forensic note.`,
+      },
+    ],
   });
 
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new ClaudeError(`OpenRouter ${response.status}: ${detail.slice(0, 200)}`);
+  const text = response.content.find((b) => b.type === "text");
+  if (!text || text.type !== "text") {
+    throw new ClaudeError("No text response from Claude");
   }
-
-  const data = await response.json();
-  const content = data?.choices?.[0]?.message?.content;
-  const text =
-    typeof content === "string"
-      ? content
-      : Array.isArray(content)
-        ? content.map((p: any) => p?.text ?? "").join("")
-        : "";
-  if (!text.trim()) {
-    throw new ClaudeError("No text response from OpenRouter");
-  }
-  return text.trim();
+  return text.text.trim();
 }
